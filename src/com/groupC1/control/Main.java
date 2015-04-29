@@ -2,6 +2,7 @@ package com.groupC1.control;
 
 import com.groupC1.control.network.TelnetHandler;
 import com.groupC1.control.reference.Settings;
+import com.groupC1.control.util.CommandHelper;
 import com.groupC1.control.util.IOHelper;
 import matlabcontrol.*;
 
@@ -82,19 +83,21 @@ public class Main {
 
     /** Performs some magic to send the path to the robot */
     private static void sendPathToRobot() {
-        //Create TelnetHandler
-        telnetHandler = new TelnetHandler(Settings.ROBOT_IP, Settings.ROBOT_PORT);
-        telnetHandler.connect();
-        telnetHandler.sendMessage((byte) (char) Settings.START_DATA_CHAR);
-        for(int[] couple:path) {
-            telnetHandler.sendMessage((byte) couple[0]);
-            telnetHandler.sendMessage((byte) couple[1]);
+        if(Settings.USE_TERATERM) {
+            //Open TeraTerm
+            CommandHelper.executeCommand(Settings.TERATERM_PATH);
         }
-        telnetHandler.sendMessage((byte) (char) Settings.STOP_DATA_CHAR);
-        telnetHandler.disconnect();
-        /*
-        //Open TeraTerm
-        CommandHelper.executeCommand(Settings.TERATERM_PATH);
-        */
+        else {
+            //Create TelnetHandler
+            telnetHandler = new TelnetHandler(Settings.ROBOT_IP, Settings.ROBOT_PORT);
+            telnetHandler.connect();
+            telnetHandler.sendMessage(Settings.START_DATA_CHAR);
+            for (int[] couple : path) {
+                telnetHandler.sendMessage(couple[0]);
+                telnetHandler.sendMessage(couple[1]);
+            }
+            telnetHandler.sendMessage(Settings.STOP_DATA_CHAR);
+            telnetHandler.disconnect();
+        }
     }
 }

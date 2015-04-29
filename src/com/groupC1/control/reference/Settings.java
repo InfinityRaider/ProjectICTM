@@ -21,6 +21,7 @@ public class Settings {
     public static String CAMERA_USERNAME = Reference.CAMERA_USER;
     public static String CAMERA_PASSWORD = Reference.CAMERA_PASSWORD;
     public static Long TIMEOUT_WAIT_TIME = (long) 5000;
+    public static Boolean USE_TERATERM = false;
     public static Character START_DATA_CHAR = 'a';
     public static Character STOP_DATA_CHAR = 'b';
 

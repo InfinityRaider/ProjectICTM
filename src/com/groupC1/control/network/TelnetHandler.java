@@ -31,6 +31,10 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
         }
     }
 
+    public void sendMessage(char message) {sendMessage((byte) message);}
+
+    public void sendMessage(int message) {sendMessage((byte) message);}
+
     public void sendMessage(byte message) {
         boolean wasConnected = isConnected();
         if(!wasConnected) {
