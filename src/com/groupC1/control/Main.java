@@ -4,6 +4,7 @@ import com.groupC1.control.network.TelnetHandler;
 import com.groupC1.control.reference.Settings;
 import com.groupC1.control.util.CommandHelper;
 import com.groupC1.control.util.IOHelper;
+import com.groupC1.control.util.RobotHelper;
 import matlabcontrol.*;
 
 import java.awt.image.BufferedImage;
@@ -17,17 +18,21 @@ public class Main {
             .setHidden(true)
             .build());
 
-    /** TelnetHandler to communicate with the robot */
-    private static TelnetHandler telnetHandler;
+    /** RobotHelper to control the robot */
+    private static RobotHelper robotHelper;
 
     /** The path to be sent to the robot (nx2) */
     public static int[][] path;
+    public static float[][] directions;
+    public static float startingAngle;
+    public static float pixelsPerCentimeter;
 
     public static void main(String[] args) {
         Settings.init();
         getImage();
         determinePath();
-        sendPathToRobot();
+        transformPath();
+        followPath();
     }
 
     /** Comunicates with the camera to get a bird's eye image of the situation */
@@ -76,28 +81,45 @@ public class Main {
                 System.exit(-1);
             }
             //read path
-            String[] csvData = IOHelper.readCSV(Settings.WORKSPACE_DIRECTORY, Settings.MAX_TRIES_UNTIL_TIMEOUT);
+            String[] csvData = IOHelper.readFile(Settings.WORKSPACE_DIRECTORY + '\\' + Settings.PATH_NAME, Settings.MAX_TRIES_UNTIL_TIMEOUT);
             path = IOHelper.parseData(csvData);
+            String[] data = IOHelper.readFile(Settings.WORKSPACE_DIRECTORY + '\\' + Settings.FILE_NAME, Settings.MAX_TRIES_UNTIL_TIMEOUT);
+            pixelsPerCentimeter = Float.parseFloat(data[0].substring(data[0].indexOf('=')+1));
+            startingAngle = Float.parseFloat(data[1].substring(data[1].indexOf('=')+1));
         }
     }
 
-    /** Performs some magic to send the path to the robot */
-    private static void sendPathToRobot() {
+    /** Transform the path of image coordinates to a sequence of distances and angles */
+    private static void transformPath() {
+        directions = new float[path.length-1][2];
+        for(int i=1;i<path.length;i++) {
+            int x0 = path[i-1][0];
+            int y0 = path[i-1][1];
+            int x1 = path[i][0];
+            int y1 = path[i][1];
+            directions[i-1][0] = (float) (Math.atan2(y1 - y0, x1 - x0)*180/Math.PI);
+            directions[i-1][1] = ((float) Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)))/(100*pixelsPerCentimeter);
+            if(i==1) {
+                directions[0][0] = directions[0][0]-startingAngle;
+            }
+        }
+    }
+
+    /** Sends the necessary commands to the robot to follow the path */
+    private static void followPath() {
         if(Settings.USE_TERATERM) {
             //Open TeraTerm
             CommandHelper.executeCommand(Settings.TERATERM_PATH);
-        }
-        else {
-            //Create TelnetHandler
-            telnetHandler = new TelnetHandler(Settings.ROBOT_IP, Settings.ROBOT_PORT);
-            telnetHandler.connect();
-            telnetHandler.sendMessage(Settings.START_DATA_CHAR);
-            for (int[] couple : path) {
-                telnetHandler.sendMessage(couple[0]);
-                telnetHandler.sendMessage(couple[1]);
+        } else {
+            robotHelper = new RobotHelper(new TelnetHandler(Settings.ROBOT_IP, Settings.ROBOT_PORT));
+            robotHelper.openConnection();
+            for (float[] instructions : directions) {
+                float angle = instructions[0];      //angle in degrees
+                float distance = instructions[1];   //distance in meters
+                robotHelper.rotate(angle);
+                robotHelper.driveForward(distance);
             }
-            telnetHandler.sendMessage(Settings.STOP_DATA_CHAR);
-            telnetHandler.disconnect();
+            robotHelper.closeConnection();
         }
     }
 }

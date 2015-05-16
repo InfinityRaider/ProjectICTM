@@ -9,8 +9,9 @@ figScene=rgb2gray(figScene);
 
 [X0,Y0]=transformPointsForward(tform,0,0);
 [X1,Y1]=transformPointsForward(tform,1,0);
-SIZE=size(figBox)
-[X2,Y2]=transformPointsForward(tform,SIZE(2),0);
+SIZE=size(figBox);
+[X2,Y2]=transformPointsForward(tform,SIZE(2),0);                  %Transform center of the arrow
+[Xc,Yc]=transformPointsForward(tform,SIZE(2)/2,SIZE(1)/2);
 dx=X1-X0;
 dy=Y0-Y1;
 
@@ -19,9 +20,9 @@ angle=mod(180+atand((Y0-Y1)/(X1-X0)),360);
 else
 angle=mod(atand((Y0-Y1)/(X1-X0)),360);
 end
-angle
-translation=[X0,Y0]
-robotPos = [X0, Y0, angle, X2, Y2]
+angle;
+translation=[X0,Y0];
+robotPos = [X0, Y0, angle, X2, Y2,Xc,Yc]
 hold on 
 plot(X0,Y0,'r*')
 

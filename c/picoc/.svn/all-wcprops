@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/106/trunk/blackfin/srv/picoc
+END
+expression.c
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/122/trunk/blackfin/srv/picoc/expression.c
+END
+picoc.h
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/picoc.h
+END
+platform_surveyor.c
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/89/trunk/blackfin/srv/picoc/platform_surveyor.c
+END
+clibrary.c
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/clibrary.c
+END
+parse.c
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/parse.c
+END
+heap.c
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/96/trunk/blackfin/srv/picoc/heap.c
+END
+math_library.c
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/math_library.c
+END
+type.c
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/type.c
+END
+library_surveyor.c
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/122/trunk/blackfin/srv/picoc/library_surveyor.c
+END
+platform.c
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/platform.c
+END
+variable.c
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/variable.c
+END
+table.c
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/89/trunk/blackfin/srv/picoc/table.c
+END
+lex.c
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/111/trunk/blackfin/srv/picoc/lex.c
+END
+platform.h
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/117/trunk/blackfin/srv/picoc/platform.h
+END
+picoc.c
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/96/trunk/blackfin/srv/picoc/picoc.c
+END

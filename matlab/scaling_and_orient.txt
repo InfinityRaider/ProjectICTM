@@ -1,0 +1,2 @@
+Pixels per centimeters =1.395105 
+Orient= 360.000000

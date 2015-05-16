@@ -29,7 +29,7 @@ public class IOHelper {
         }
     }
 
-    public static String[] readCSV(String fileName, int tries) {
+    public static String[] readFile(String fileName, int tries) {
         ArrayList<String> lines = new ArrayList<String>();
         BufferedReader reader = null;
         //Wait for Matlab to finish its scripts, if Matlab takes too long, we assume it has failed
@@ -55,10 +55,11 @@ public class IOHelper {
             e.printStackTrace();
             System.exit(-1);
         }
-        StringBuilder builder = new StringBuilder();
         try {
-            while (reader.readLine() != null) {
-                lines.add(reader.readLine());
+            String line = reader.readLine();
+            while (line != null) {
+                lines.add(line);
+                line = reader.readLine();
             }
         } catch (Exception e) {
             System.out.println("The codings, they do nothing");

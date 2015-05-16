@@ -20,6 +20,9 @@ public abstract class Reference {
     public static final int DEFAULT_TRIES = 200;
     public static final int DEFAULT_SLEEP_TIME = 10;
 
+    public static final char START_DATA_CHAR = 'a';
+    public static final char STOP_DATA_CHAR = 'b';
+
     public static final String[] COMMANDS = {
 
     };

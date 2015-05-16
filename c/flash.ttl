@@ -1,0 +1,36 @@
+connect '169.254.0.10 10001 /B' 
+if result=0 goto error 
+ 
+sendln 'V' 
+if result=0 goto error 
+ 
+sendln 'X' 
+if result=0 goto error 
+ 
+xmodemsend 'C:\SRV\srv1.ldr' 1       
+if result=0 goto error2 
+ 
+if result=1 goto flush 
+ 
+; error. stop macro 
+:error 
+messagebox 'Error!' 'Tera Term' 
+end  
+
+:error2 
+messagebox 'Error2!' 'Tera Term' 
+end  
+:flush 
+sendln 'V' 
+if result=0 goto error 
+ 
+sendln 'zZ' 
+pause 3 
+ 
+sendln '$!' 
+pause 1 
+ 
+sendln 'V' 
+pause 1 
+ 
+disconnect 

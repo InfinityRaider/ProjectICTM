@@ -16,12 +16,13 @@ colormap(flipud(gray));
 
 %%%%%%%%%%%%%%%%%%%%
 
-Size_Map=size(Topmap);
-Mapsize=Size_Map(1);
+Size_Map=size(Topmap)
+MapsizeX=Size_Map(2)
+MapsizeY=Size_Map(1)
 %DEFINE THE 2-D MAP ARRAY
-MAX_X=Mapsize;
-MAX_Y=Mapsize;
-MAX_VAL=Mapsize;
+MAX_X=MapsizeX;
+MAX_Y=MapsizeY;
+MAX_VAL=MapsizeX;
 %This array stores the coordinates of the map and the 
 %Objects in each coordinate
 MAP=Topmap;
@@ -37,7 +38,7 @@ hold on;
 xStart=Start(2)
 yStart=Start(1)
 
-xTarget=Mapsize-1;
+xTarget=MapsizeX-1;
 yTarget=1;
 
 MAP(xTarget,yTarget)=-1;%Initialize MAP with location of the target
@@ -71,8 +72,8 @@ CLOSED=zeros(MAX_X*MAX_Y,2);% Verzameling van permanente knopen
 
 %Put all obstacles on the Closed list
 k=1;%Dummy counter
-for i=1:MAX_X
-    for j=1:MAX_Y
+for i=1:MAX_Y
+    for j=1:MAX_X
         if(MAP(i,j) == 1)
             CLOSED(k,2)=i; %Noteer y-coordinaat obstakel
             CLOSED(k,1)=j; %Noteer x-coordinaat obstakel

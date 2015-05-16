@@ -1,12 +1,12 @@
-function [ image ] = filterRobot( image, robotPos, robotSize )
+function [ image ] = filterRobot( image, robotPos, robotSize,xMar,yMar )
 %Filters the robot out of an image and returns the image
 %   image: logical n x m matrix
 %   robotPox: vector with three elements: [x (pixels), y (pixels), rotation (degrees)]
 %   robotSize: vector with two elements: [xSize, ySize]
 
 imSize=size(image);
-xMargin = 10;
-yMargin = 10;
+xMargin = xMar;
+yMargin = yMar;
 
 offsetX = -xMargin:(robotSize(1) + xMargin);
 offsetY = -yMargin:(robotSize(2) + yMargin);

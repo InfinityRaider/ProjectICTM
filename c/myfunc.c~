@@ -1,0 +1,315 @@
+#include "myfunc.h"
+#include "print.h"
+#include "srv.h"
+#include "colors.h"
+
+
+#define bin 1
+#define min_speed 19
+
+void followLine();
+void setBinGreen();
+void setBinRed();
+void PID(int speed);
+int run();
+int convertDistance(int pixels);
+void changeRef();
+
+void myfunc(){
+	unsigned char ch;
+	int i;
+	int a;
+	int s=1;
+	unsigned char ff;
+	//init_uart1(57600); 
+	if (!pwm1_init){
+		initPWM();
+		pwm1_init=1;
+		pwm1_mode=PWM_PWM;
+		lspeed=rspeed=0;
+		base_speed=25;
+
+	}
+	do{
+		printf("a - follow line\r\n");
+		printf("b - follow car\r\n");
+		printf("c - give direction\r\n");
+		printf("d - give distance\r\n");
+		printf("s - stop\r\n");
+		printf("1 - changeRef\r\n");
+		
+		ch=getch();
+		switch(ch){
+		case '1':
+			changeRef(base_speed);		
+			break;
+		case 'a':
+			followLine(base_speed);		
+			break;
+		case'b':
+			PID(base_speed);
+			break;
+		case'f':
+			do{ 
+			ff=getch();
+			printf("cod este %c\r\n", ff );
+			}while(ff=0);
+			break;
+		case'c':
+			do{
+				grab_frame();
+				setBinRed();
+				a=vblob((unsigned char*)FRAME_BUF, (unsigned char*)FRAME_BUF3, bin);
+				i=(blobx2[0]+blobx1[0])/2-160;
+				printf("direction %d\r\n", i );
+			}while(run());
+			break;
+		case 'd':
+			do{
+				grab_frame();
+				setBinGreen();
+				a=vblob((unsigned char*)FRAME_BUF, (unsigned char*)FRAME_BUF3, bin);
+				i=convertDistance(bloby2[0]-bloby1[0]);
+				printf("direction %d\r\n", i );
+			}while(run());
+		case 's':
+			s=0;
+			break;
+		}
+	}while(s);
+}
+
+void PID(int speed){
+	int Vleft,Vright,a;
+	float Kps=3;
+	float Kds=0.5; 
+	float Kis=0.7; 
+	float errs=0;
+	float old_errs=0;
+	float ders=0;
+	float integs=0;
+	float diffs_mot=0;
+	float dis_act=0;
+	float dis_des=30;
+	float Kp=0.15;
+	float Kd=0;
+	float Ki=0;
+	float err=0;
+	float old_err=0;
+	float der=0;
+	float integ=0;
+	float diff_mot=0;
+	float dir_act=160;
+	float dir_des=160;
+	float dt;
+	float dt2;
+	int time=readRTC();
+	int time2=readRTC();
+	do{
+		grab_frame();
+		setBinRed();
+		a=vblob((unsigned char*)FRAME_BUF, (unsigned char*)FRAME_BUF3, 1);
+		if(a=0){
+			printf("no line detected");
+			Vleft=Vright=0;
+		}
+		else{
+			dt=(float)(readRTC()-time)/1000;
+			dir_act=(float)(blobx2[0]+blobx1[0])/2;
+			err=dir_des-dir_act;
+			integ+=err*dt;
+			der=(err-old_err)/dt;
+			diff_mot=(Kp*err+Kd*der+Ki*integ);						
+			old_err=err;
+			time=readRTC();
+
+			dt2=(float)(readRTC()-time2)/1000;
+			dis_act=convertDistance(bloby2[0]-bloby1[0]);
+			errs=dis_des-dis_act;
+			integs+=errs*dt;
+			ders=(errs-old_errs)/dt2;
+			diffs_mot=-(Kps*errs+Kds*ders+Kis*integs);						
+			old_errs=errs;
+			time2=readRTC();
+
+			Vright=(speed+(int)diff_mot+(int)diffs_mot);
+			Vleft=(speed-(int)diff_mot+(int)diffs_mot);
+
+		}
+		setPWM(Vleft,Vright);
+	}while(run());	
+	setPWM(0,0);
+}
+
+void changeRef(int speed){
+	int Vleft,Vright,a;
+	float Kp=0.125;
+	float Kd=0.025;
+	float Ki=0.085; 
+	float err=0;
+	float old_err=0;
+	float integ=0;
+	float der=0;
+	float diff_mot=0;
+	float dir_act=0;
+	float dir_des=160;
+	float dt;
+	int time=readRTC();
+	int init_time=time;
+	
+	do{
+
+		grab_frame();
+		setBinGreen();
+		a=vblob((unsigned char*)FRAME_BUF, (unsigned char*)FRAME_BUF3, bin);
+		if(a<0){			
+			Vleft=Vright=0;
+		}
+
+		else{
+			dt=(float)(readRTC()-time)/1000;
+			dir_act=(float)(blobx2[0]+blobx1[0])/2;
+			err=dir_des-dir_act;
+			integ+=err*dt;
+			der=(err-old_err)/dt;
+			diff_mot=(Kp*err+Kd*der+Ki*integ);						
+			Vright=(speed+(int)diff_mot);
+			Vleft=(speed-(int)diff_mot);
+			old_err=err;
+			time=readRTC();
+		}
+		setPWM(Vleft,Vright);
+		
+		if(time-init_time > 50000)
+		{
+			speed=25;
+			printf(" ref2 \r\n");
+		}
+		
+	}while(run());	
+	setPWM(0,0);
+}
+
+void followLine(int speed){
+	int Vleft,Vright,a;
+	float Kp=0.125;
+	float Kd=0.025;
+	float Ki=0.085; 
+	float err=0;
+	float old_err=0;
+	float integ=0;
+	float der=0;
+	float diff_mot=0;
+	float dir_act=0;
+	float dir_des=160;
+	float dt;
+	int time=readRTC();
+	int xx;
+	do{
+		grab_frame();
+		setBinGreen();
+		a=vblob((unsigned char*)FRAME_BUF, (unsigned char*)FRAME_BUF3, bin); 
+		
+		
+		//lasers_on();
+		//show_laser_range(1);
+		//printf("range = %d", xx);
+		
+		if ((a<0) ){			
+			Vleft=Vright=0;
+		}
+		else{
+			dt=(float)(readRTC()-time)/1000;
+			dir_act=(float)(blobx2[0]+blobx1[0])/2;
+			err=dir_des-dir_act;
+			integ+=err*dt;
+			der=(err-old_err)/dt;
+			diff_mot=(Kp*err+Kd*der+Ki*integ);						
+			Vright=(speed+(int)diff_mot);
+			Vleft=(speed-(int)diff_mot);
+			old_err=err;
+			time=readRTC();
+		}
+		setPWM(Vleft,Vright);
+		//printf("ss - stop\r\n");
+	}while(run());	
+	//printf("sss - stop\r\n");
+	setPWM(0,0);
+}	
+
+int run(){
+	unsigned char ch;
+	if(getsignal()){
+		ch=getch();
+		
+		//printf("ch este %d\r\n", 10);
+		
+		switch(ch){
+		case 's':
+			return 0;
+			break;
+		}
+	}
+	else return 1;
+}
+
+void setBinRed(){
+	vmean((unsigned char *)FRAME_BUF);
+	ymin[bin] = 0;
+	ymax[bin] = 255;
+	umin[bin] = 50;
+	umax[bin] = 140;
+	vmin[bin] = mean[2]+40;
+	vmax[bin] = 255;
+}
+
+void setBinGreen(){
+	vmean((unsigned char *)FRAME_BUF);
+/*
+	ymin[bin] = 0;
+	ymax[bin] = 255;
+	umin[bin] = 120;//120
+	umax[bin] = 170;//170
+	vmin[bin] = mean[2]-40;
+	vmax[bin] = mean[2]-10;
+	*/
+	ymin[bin] = 0;
+	ymax[bin] = 255;
+	umin[bin] = 160;
+	umax[bin] = 255;
+	vmin[bin] = 60;
+	vmax[bin] = 130;
+}
+
+int convertDistance(int pixels){
+	int distance=6;
+	if( pixels<=97 && pixels >=66){
+		distance=-0.0004*pixels*pixels-0.1755*pixels+33.15;
+	}
+	else if(pixels<66 && pixels>=26){
+		distance=0.0197*pixels*pixels-2.4585*pixels+99.381;
+	}
+	else if(pixels<26 && pixels>=11){
+		distance=0.141*pixels*pixels-8.4449*pixels+173.33;
+	}
+	else if(pixels<11){
+		distance=100;
+	}
+	else if (pixels>=97){
+		distance=0;
+	}
+	return distance;
+}
+////vmin[bin] = mean[2]-40; // linia lunga 
+//vmax[bin] = mean[2]-10;
+//linie hol de la baie si linie remote lab
+//vmin[bin] = mean[2]-50;
+//vmax[bin] = mean[2]-30;
+
+
+//	ymin[bin] = 0;
+	//ymax[bin] = 255;
+	//umin[bin] = 120;//120
+	//umax[bin] = 170;//170
+	//vmin[bin] = mean[2];
+	//vmax[bin] = mean[2];

@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>SRV-1 Robot</title>
+<script type="text/javascript">
+<!--
+var btnPending = null;
+var btnsVisible = true;
+var xmlhttp = new XMLHttpRequest();
+
+function setup()
+{
+    refreshPeriod=120;
+    setTimeout("newimg()", refreshPeriod);
+}
+
+
+function newimg()
+{
+    var currentPath=document.robot.src;
+    var trimmedPath=new Array();
+    trimmedPath=currentPath.split("?");
+    document.robot.src = trimmedPath[0] + "?" + Math.random();
+    if (btnPending) {
+        xmlhttp.open ("GET", "robot.cgi?" + btnPending + "&b=" + new Date().getTime(), true);
+        xmlhttp.send (null);
+        btnPending = null;
+    }
+    setup();
+}
+
+function btnClick (btn)
+{
+    btnPending = btn;
+}
+
+
+function toggleBtnDisplay ()
+{
+    btnsVisible = !btnsVisible;
+    coll = document.body.getElementsByTagName ("DIV");
+    for (i = 0; i < coll.length; ++i)
+        if (coll[i].className == "btn")
+        {
+            coll[i].style.opacity = btnsVisible ? 0.5 : 0;
+            coll[i].style.MozOpacity = btnsVisible ? 0.5 : 0;
+        }
+
+    document.getElementById ("toggleBtnBtn").value = btnsVisible ? String.fromCharCode (216) : "O";
+}
+
+// -->
+</script>
+<style type="text/css">
+.btn
+{
+    position: absolute;
+
+    border-width: 0px 2px 2px 0px;
+    border-style: groove;
+    border-color: #ffffff;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8pt;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+
+    z-index: 100;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+
+.btnText
+{
+    background-color: #000000;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+    -moz-opacity: 1;
+    opacity: 1;
+}
+</style>
+</head>
+
+<body onLoad="setup()" style="margin: 0; padding: 0;">
+<img src="robot.jpg" name="robot" style="margin: 0; padding: 0;">
+<div class="btn" style="left: 0px; top: 0px; width: 24px; height: 120px" onclick="btnClick('l1')"><span class="btnText">&nbsp; l &nbsp;</span></div>
+<div class="btn" style="left: 296px; top: 0px; width: 24px; height: 120px" onclick="btnClick('l0')"><span class="btnText">&nbsp; L &nbsp;</span></div>
+
+<div class="btn" style="left: 0px; top: 120px; width: 24px; height: 120px" onclick="btnClick('+')"><span class="btnText">&nbsp; + &nbsp;</span></div>
+<div class="btn" style="left: 296px; top: 120px; width: 24px; height: 120px" onclick="btnClick('-')"><span class="btnText">&nbsp; - &nbsp;</span></div>
+
+<div class="btn" style="left: 24px; top: 0px; width: 76px; height: 80px" onclick="btnClick('x6090')"><span class="btnText">&nbsp;&lt;--&nbsp;</span></div>
+<div class="btn" style="left: 100px; top: 0px; width: 120px; height: 80px" onclick="btnClick('x8080')"><span class="btnText">&nbsp;forward&nbsp;</span></div>
+<div class="btn" style="left: 220px; top: 0px; width: 76px; height: 80px" onclick="btnClick('x9060')"><span class="btnText">&nbsp;--&gt;&nbsp;</span></div>
+
+<div class="btn" style="left: 24px; top: 80px; width: 76px; height: 80px" onclick="btnClick('x1090')"><span class="btnText">&nbsp;spin left&nbsp;</span></div>
+<div class="btn" style="left: 100px; top: 80px; width: 120px; height: 80px" onclick="btnClick('x5050')"><span class="btnText">&nbsp;STOP&nbsp;</span></div>
+<div class="btn" style="left: 220px; top: 80px; width: 76px; height: 80px" onclick="btnClick('x9010')"><span class="btnText">&nbsp;spin right&nbsp;</span></div>
+
+<div class="btn" style="left: 24px; top: 160px; width: 76px; height: 80px" onclick="btnClick('x4010')"><span class="btnText">&nbsp;back left&nbsp;</span></div>
+<div class="btn" style="left: 100px; top: 160px; width: 120px; height: 80px" onclick="btnClick('x2020')"><span class="btnText">&nbsp;back&nbsp;</span></div>
+<div class="btn" style="left: 220px; top: 160px; width: 76px; height: 80px" onclick="btnClick('x1040')"><span class="btnText">&nbsp;back right&nbsp;</span></div>
+
+<input type="button" id="toggleBtnBtn" value="&#216;" style="position: absolute; left: 328px; top: 105; width: 30px; height: 30px"
+    onclick="toggleBtnDisplay()">
+</body>
+</html>
+

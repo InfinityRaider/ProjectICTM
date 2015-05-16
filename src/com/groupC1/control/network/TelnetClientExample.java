@@ -56,7 +56,7 @@ public class TelnetClientExample implements Runnable, TelnetNotificationHandler
      * Main for the TelnetClient.
      ***/
     public static void main(String[] args) throws Exception {
-        args = new String[]{Settings.ROBOT_IP, ""+Settings.ROBOT_PORT};
+        args = new String[]{"169.254.0.10", "10001"};
         FileOutputStream fout = null;
         if(args.length < 1) {
             System.err.println("Usage: TelnetClientExample1 <remote-ip> [<remote-port>]");
@@ -242,16 +242,13 @@ public class TelnetClientExample implements Runnable, TelnetNotificationHandler
         try {
             byte[] buff = new byte[1024];
             int ret_read = 0;
-
-            do
-            {
+            do {
                 ret_read = instr.read(buff);
                 if(ret_read > 0)
                 {
                     System.out.print(new String(buff, 0, ret_read));
                 }
-            }
-            while (ret_read >= 0);
+            } while (ret_read >= 0);
         } catch (IOException e) {
             System.err.println("Exception while reading socket:" + e.getMessage());
         }

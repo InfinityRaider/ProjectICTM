@@ -4,6 +4,7 @@ import com.groupC1.control.reference.Settings;
 import org.apache.commons.net.telnet.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class TelnetHandler implements Runnable, TelnetNotificationHandler{
@@ -13,6 +14,7 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
 
     private boolean connected = false;
     private OutputStream outputStream;
+    private InputStream inputStream;
 
     public TelnetHandler(String ip, int port) {
         this.ip = ip;
@@ -33,15 +35,19 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
 
     public void sendMessage(char message) {sendMessage((byte) message);}
 
-    public void sendMessage(int message) {sendMessage((byte) message);}
-
     public void sendMessage(byte message) {
+        byte[] array = new byte[] {message};
+        sendMessage(array);
+    }
+
+    public void sendMessage(byte[] message) {
         boolean wasConnected = isConnected();
         if(!wasConnected) {
             connect();
         }
         try {
-            client.sendCommand(message);
+            outputStream.write(message);
+            outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,11 +73,15 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
                 if (!client.sendAYT(Settings.TIMEOUT_WAIT_TIME)) {
                     throw new TimeOutException();
                 }
+                else {
+                    System.out.println("AYT Received");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
             reader.start();
             outputStream = client.getOutputStream();
+            inputStream = client.getInputStream();
             connected = true;
         }
     }
@@ -85,11 +95,27 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
             }
             connected = false;
             outputStream = null;
+            inputStream = null;
         }
     }
 
     @Override
-    public void run() {}
+    public void run() {
+        while(inputStream!=null) {
+            try {
+                byte[] buff = new byte[1024];
+                int ret_read = inputStream.read(buff);
+                while (ret_read >= 0) {
+                    if (ret_read > 0) {
+                        System.out.print(new String(buff, 0, ret_read));
+                    }
+                    ret_read = inputStream.read(buff);
+                }
+            } catch (IOException e) {
+                System.err.println("Exception while reading socket:" + e.getMessage());
+            }
+        }
+    }
 
     @Override
     public void receivedNegotiation(int negotiation_code, int option_code) {}
