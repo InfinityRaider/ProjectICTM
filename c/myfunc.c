@@ -131,7 +131,7 @@ void myfunc() {
 
 				break;
 
-				case '5':
+				case '5': /* Drive forward */
 
 					sendReceive(201, 23, 202, 20);
 						/* 201: Right motor moves forward
@@ -140,7 +140,7 @@ void myfunc() {
 						   */
 					break;
 
-				case '6':
+				case '6': /* Stop */
 
 					sendReceive(201, 0, 202, 0);
 					break;
@@ -154,16 +154,16 @@ void myfunc() {
 							*/
 					break;
 
-				case '8':
+				case '8': /* Rotate left (counter clockwise) */
 
-					sendReceive(201, 23, 204, 20);
+					sendReceive(203, 22, 202, 20);
 						/* Rotate: left motor rotates backward; right one forward */
 					break;
 
 
-				case '9':
+				case '9': /* Rotate right (clockwise) */
 
-					sendReceive(203,23,202,20);
+					sendReceive(201,22,204,20);
 						/* Rotate: left motor rotates forward; right one backward */
 					break;
 
