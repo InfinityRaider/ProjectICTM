@@ -1,6 +1,7 @@
 package com.groupC1.control.network;
 
 import com.groupC1.control.reference.Settings;
+import com.groupC1.control.util.DebugHelper;
 import org.apache.commons.net.telnet.*;
 
 import java.io.IOException;
@@ -86,8 +87,8 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
         }
     }
 
-    public void disconnect(){
-        if(isConnected()) {
+    public void disconnect() {
+        if (isConnected()) {
             try {
                 client.disconnect();
             } catch (IOException e) {
@@ -101,13 +102,14 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
 
     @Override
     public void run() {
+        /*
         while(inputStream!=null) {
             try {
                 byte[] buff = new byte[1024];
                 int ret_read = inputStream.read(buff);
                 while (ret_read >= 0) {
                     if (ret_read > 0) {
-                        System.out.print(new String(buff, 0, ret_read));
+                        DebugHelper.debug(new String(buff, 0, ret_read));
                     }
                     ret_read = inputStream.read(buff);
                 }
@@ -115,6 +117,7 @@ public class TelnetHandler implements Runnable, TelnetNotificationHandler{
                 System.err.println("Exception while reading socket:" + e.getMessage());
             }
         }
+        */
     }
 
     @Override

@@ -8,15 +8,15 @@ imSize=size(image);
 xMargin = xMar;
 yMargin = yMar;
 
-offsetX = -xMargin:(robotSize(1) + xMargin);
-offsetY = -yMargin:(robotSize(2) + yMargin);
+offsetX = -xMargin-floor(robotSize(1)/2):ceil(robotSize(1)/2) + xMargin;
+offsetY = -yMargin-floor(robotSize(2)/2):ceil(robotSize(2)/2) + yMargin;
 
 for i=1:1:length(offsetX)
     for j=1:1:length(offsetY)
         itX = offsetX(i);
         itY = offsetY(j);
-        u1 = floor(robotPos(1)+( itX*cos(robotPos(3)*pi/180) + itY*sin(robotPos(3)*pi/180) ));
-        u2 = ceil(robotPos(1)+( itX*cos(robotPos(3)*pi/180) + itY*sin(robotPos(3)*pi/180) ));
+        u1 = floor(robotPos(1)+( itX*cos(-robotPos(3)*pi/180) + itY*sin(-robotPos(3)*pi/180) ));
+        u2 = ceil(robotPos(1)+( itX*cos(-robotPos(3)*pi/180) + itY*sin(-robotPos(3)*pi/180) ));
         if (u1<1)
             u1=1;
         else if u1>imSize(2)
@@ -30,8 +30,8 @@ for i=1:1:length(offsetX)
             end
         end
         
-        v1 = floor(robotPos(2)+( -itX*sin(robotPos(3)*pi/180) + itY*cos(robotPos(3)*pi/180) ));
-        v2 = ceil(robotPos(2)+( -itX*sin(robotPos(3)*pi/180) + itY*cos(robotPos(3)*pi/180) ));
+        v1 = floor(robotPos(2)+( -itX*sin(-robotPos(3)*pi/180) + itY*cos(-robotPos(3)*pi/180) ));
+        v2 = ceil(robotPos(2)+( -itX*sin(-robotPos(3)*pi/180) + itY*cos(-robotPos(3)*pi/180) ));
         if (v1<1)
             v1=1;
         else if v1>imSize(1)

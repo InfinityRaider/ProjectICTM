@@ -1,4 +1,4 @@
-function MainScript(imagename, filename, buildMap, doPlots)
+function [img3] = GetLogicalMapExtract(imagename, filename, buildMap, doPlots)
 
 close all
 %---------
@@ -69,36 +69,5 @@ if(buildMap)
 
     resrobotX=round(robotPos(1)/SIZE1(2)*SIZE2(2));
     resrobotY=round(robotPos(2)/SIZE1(1)*SIZE2(1));
-else
-    % Read the previously determined map from file
-    img2 = imread('LogicalMap.png');
-    figure('Name', 'Before filtering')
-    imshow(img2)
-
-    PixPerCm2=PixPerCm*1/scale;
-
-    SIZE1=size(Scene);
-    SIZE2=size(img2);
-
-    resrobotX=round(robotPos(1)/SIZE1(2)*SIZE2(2));
-    resrobotY=round(robotPos(2)/SIZE1(1)*SIZE2(1));
-    
-    resrobotXSize = round(robotXSize/SIZE1(2)*SIZE2(2));
-    resrobotYSize = round(robotYSize/SIZE1(1)*SIZE2(1));
-    
-    img3 = filterRobot(img2, [resrobotX, resrobotY, robotPos(3)], [resrobotXSize, resrobotYSize], 3,3);
-    figure('Name', 'After filtering')
-    imshow(img3)
 end
 
-%--------------
-%Determine path
-%--------------
-path = Smooth_AStar_Path(img3,[resrobotY,resrobotX])                                  %Find path and smooth it (n x 2)
-csvwrite(filename, path);%Writes path to a csv file
-
-fid = fopen( 'scaling_and_orient.txt', 'wt' );
-fprintf( fid, 'Pixels per centimeters =%f \nOrient= %f', PixPerCm2,robotPos(3));
-fclose(fid);
-
-end

@@ -7,16 +7,19 @@ function [tform, rob_Inpoints, map_Inpoints,tmatrix  ] = Robot_Recognition( im_r
 % More info:http://nl.mathworks.com/help/vision/examples/object-detection-in-a-cluttered-scene-using-point-feature-matching.html
 
 % Detect feature points in both images
-rob_points=detectSURFFeatures(im_robot)
-map_points=detectSURFFeatures(im_map)
+%rob_points=detectSURFFeatures(im_robot, 'NumOctaves', 1, 'NumScaleLevels', 5, 'MetricThreshold', 100);
+%map_points=detectSURFFeatures(im_map, 'NumOctaves', 1, 'NumScaleLevels', 5, 'MetricThreshold', 100);
 
-figure;
+rob_points=detectSURFFeatures(im_robot);
+map_points=detectSURFFeatures(im_map);
+
+figure('Name', 'Robot pattern with strongest points');
 hold on;
 imshow(im_robot);
 plot(selectStrongest(rob_points,100));
 hold off;
 
-figure;
+figure('Name', 'Photograph with strongest points');
 hold on;
 imshow(im_map);
 plot(selectStrongest(map_points,100));

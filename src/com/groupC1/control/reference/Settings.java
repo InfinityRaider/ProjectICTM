@@ -23,6 +23,8 @@ public class Settings {
     public static Long TIMEOUT_WAIT_TIME = (long) 5000;
     public static Boolean USE_TERATERM = false;
     public static String FILE_NAME = "scaling_and_orient.txt";
+    public static Boolean EXECUTE_MATLAB = true;
+    public static Integer DRIVE_TIME_BEFORE_CORRECTION = 2000;
     //public static Character START_DATA_CHAR = Reference.START_DATA_CHAR;
     //public static Character STOP_DATA_CHAR = Refrence.STOP_DATA_CHAR;
 

@@ -10,7 +10,7 @@ function [path_smooth]= path_smoother(path,cspace)
 % New smoothed path row Inc
 k=1;
 % Start at the very beginning
-path_smooth(k,:)=path(size(path,1),1:2);
+path_smooth(1,:)=path(size(path,1),1:2);
 
 % Move along path
 for i=size(path,1):-1:2

@@ -9,16 +9,16 @@ function [Smooth_path]=Smooth_AStar_Path(Topmap,Start)
 
 
 imagesc(Topmap)
-colormap(flipud(gray));
+colormap(flipud(gray))
 %set(gca,'XTick',0:1:Mapsize,'Ytick',0:1:Mapsize);
 
 
 
 %%%%%%%%%%%%%%%%%%%%
 
-Size_Map=size(Topmap)
-MapsizeX=Size_Map(2)
-MapsizeY=Size_Map(1)
+Size_Map=size(Topmap);
+MapsizeX=Size_Map(2);
+MapsizeY=Size_Map(1);
 %DEFINE THE 2-D MAP ARRAY
 MAX_X=MapsizeX;
 MAX_Y=MapsizeY;
@@ -35,11 +35,11 @@ axis([1 MAX_X+1 1 MAX_Y+1])
 grid on;
 hold on;
 
-xStart=Start(2)
-yStart=Start(1)
+xStart=Start(2);
+yStart=Start(1);
 
-xTarget=MapsizeX-1;
-yTarget=1;
+xTarget=MapsizeX-20;
+yTarget=20;
 
 MAP(xTarget,yTarget)=-1;%Initialize MAP with location of the target
 plot(xTarget,yTarget,'gd');
@@ -200,7 +200,8 @@ else
 end
 
 %hierna
-Smooth_path=path_smoother(Optimal_path,Topmap);
+Optimal_path;
+Smooth_path=smoothPathXavier(Optimal_path,Topmap);
 plot(Smooth_path(:,1),Smooth_path(:,2),'red');
 
 

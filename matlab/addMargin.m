@@ -3,7 +3,7 @@ function [map] = addMargin(map, margin)
     % 0 = free space
     % 1 = object
     
-mapSize = size(map)
+mapSize = size(map);
 inObject = map(1, 1) == 1;
 
 % add margin vertically
