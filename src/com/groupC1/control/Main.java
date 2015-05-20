@@ -25,30 +25,30 @@ public class Main {
     /** The path to be sent to the robot (nx2) */
     public static int[][] path;
     public static float[][] directions;
-    public static float angle;
+    public static float initialAngle;
     public static float pixelsPerCentimeter;
     public static boolean buildMap = true;
 
     public static void main(String[] args) {
-        if(true) {
-            Settings.init();
-            try {
-                matlabProxy = matlabProxyFactory.getProxy();
-            } catch (MatlabConnectionException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
+        Settings.init();
+        try {
+            matlabProxy = matlabProxyFactory.getProxy();
+        } catch (MatlabConnectionException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        if(!Settings.ROBOT_TESTING_MODE) {
             getImage(Settings.IMAGE_NAME);
             determinePath(Settings.IMAGE_NAME);
             transformPath();
             followPath();
-            try {
-                matlabProxy.exit();
-            } catch (MatlabInvocationException e) {
-                e.printStackTrace();
-            }
         } else {
             testingMethod();
+        }
+        try {
+            matlabProxy.exit();
+        } catch (MatlabInvocationException e) {
+            e.printStackTrace();
         }
     }
 
@@ -89,7 +89,6 @@ public class Main {
                     matlabProxy.eval("cd('" + Settings.WORKSPACE_DIRECTORY + "')");
                     matlabProxy.eval(Settings.MATLAB_COMMAND + "('" +imageName + "','" + Settings.PATH_NAME + "',"+ buildMap + "," + Settings.DEBUG_MODE+")");
                     buildMap = false;
-                    //proxy.exit();
                 } catch (MatlabInvocationException e) {
                     e.printStackTrace();
                     System.exit(-1);
@@ -100,9 +99,9 @@ public class Main {
             path = IOHelper.parseData(csvData);
             String[] data = IOHelper.readFile(Settings.WORKSPACE_DIRECTORY + '\\' + Settings.FILE_NAME, Settings.MAX_TRIES_UNTIL_TIMEOUT);
             pixelsPerCentimeter = Float.parseFloat(data[0].substring(data[0].indexOf('=')+1));
-            angle = Float.parseFloat(data[1].substring(data[1].indexOf('=')+1));
-            while(angle >= 360) {
-                angle = angle - 360;
+            initialAngle = Float.parseFloat(data[1].substring(data[1].indexOf('=')+1));
+            while(initialAngle >= 360) {
+                initialAngle = initialAngle - 360;
             }
         }
     }
@@ -111,7 +110,7 @@ public class Main {
     private static void transformPath() {
         System.out.println("Transforming path into directions");
         directions = new float[path.length-1][2];
-        float prevAngle = angle;
+        float prevAngle = initialAngle;
         for(int i=1;i<path.length;i++) {
             int x0 = path[i-1][0];
             int y0 = path[i-1][1];
@@ -134,7 +133,7 @@ public class Main {
             robotHelper = new RobotHelper(client);
             robotHelper.openConnection();
             int it = 0;
-            while(it<5) {
+            while(it<Settings.MAX_ITERATIONS) {
                 float[][] list = directions;
                 if(hasFinished()) {
                     System.out.print("Robot has reached destination after "+it+" iterations");
@@ -142,11 +141,6 @@ public class Main {
                 }
                 for (float[] instructions : list) {
                     float angle = instructions[0];      //angle in degrees
-                    if (angle > 180) {
-                        angle = angle - 360;
-                    } else if (angle < -180) {
-                        angle = angle + 360;
-                    }
                     float distance = instructions[1];   //distance in meters
                     if (robotHelper.needsCorrection()) {
                         System.out.println("Recalculating path");
@@ -157,12 +151,19 @@ public class Main {
                         robotHelper.corrected();
                         break;
                     } else {
-                        robotHelper.rotate(angle);
-                        if(distance>0.5) {
-                            robotHelper.driveForward(distance/2);
+                        if (Settings.ACTIVE_ANGLE_CONTROL) {
+                            controlAngle(angle, it);
+                        } else {
+                            robotHelper.rotate(angle);
+                        }
+                        if (distance > Settings.MAX_DRIVING_DISTANCE) {
+                            robotHelper.driveForward(Settings.MAX_DRIVING_DISTANCE);
                             break;
                         } else {
                             robotHelper.driveForward(distance);
+                            if (Settings.RECALCULATE_PATH_EVERY_ITERATION) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -176,42 +177,67 @@ public class Main {
         int startY = path[0][1];
         int endX = path[path.length-1][0];
         int endY = path[path.length-1][1];
-        double dist = Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
-        return dist<=10;
+        double dist = Math.sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
+        return dist<=Settings.ENDING_MARGIN;
+    }
+
+    private static void controlAngle(float angleToRotate, int iteration) {
+        int it = 0;
+        System.out.println("Entering active angle control");
+        String name = "angle"+iteration+"-"+it+".jpg";
+        getImage(name);
+        float currentAngle = (float) getCurrentAngle(name);
+        float setPoint = currentAngle + angleToRotate;
+        float toRotate = setPoint - currentAngle;
+        if(toRotate>180) {
+            toRotate = toRotate-360;
+        } else if(toRotate<-180) {
+            toRotate = toRotate+360;
+        }
+        while(Math.abs(toRotate)>=Settings.MAX_ANGLE_ERROR) {
+            robotHelper.rotate(toRotate);
+            it = it+1;
+            name = "angle"+iteration+"-"+it+".jpg";
+            getImage(name);
+            currentAngle = (float) getCurrentAngle(name);
+            toRotate = setPoint - currentAngle;
+            if(toRotate>180) {
+                toRotate = toRotate-360;
+            } else if(toRotate<-180) {
+                toRotate = toRotate+360;
+            }
+        }
+    }
+
+    private static double getCurrentAngle(String image) {
+        Object[] returns = null;
+        try {
+            returns = matlabProxy.returningEval("getAngle('"+image+"')",1);
+        } catch (MatlabInvocationException e) {
+            e.printStackTrace();
+        }
+        if(returns !=null) {
+            double[] angle = (double[]) returns[0];
+            if (angle[0] > 180) {
+                angle[0] = angle[0] - 360;
+            } else if (angle[0] < -180) {
+                angle[0] = angle[0] + 360;
+            }
+            return angle[0];
+        } else {
+            System.out.println("INTERNAL MATLAB ERROR WHILE DETERMINING ANGLE");
+            System.exit(-1);
+        }
+        return 0;
     }
 
     private static void testingMethod() {
         TelnetHandler client = new TelnetHandler(Settings.ROBOT_IP, Settings.ROBOT_PORT);
         robotHelper = new RobotHelper(client);
         robotHelper.openConnection();
-
-        for(int i=300;i>10;i=i-10) {
-            robotHelper.rotateLeftForTime(i);
+        for(int i=10;i<180;i=i+10) {
+            robotHelper.rotate(i);
         }
-        /*
-        MatlabProxy proxy = null;
-        try {
-            proxy = matlabProxyFactory.getProxy();
-        } catch (MatlabConnectionException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        int it = 0;
-        float currentAngle = (float) determineAngleFromImage(proxy, it);
-        float startAngle = currentAngle;
-        float angleToRotate = 10;
-        float targetAngle = currentAngle + angleToRotate;
-        float margin = 2;
-        float multiplier = 1.0F;
-        float delay = getDelay(angleToRotate);
-        while(Math.abs(targetAngle-currentAngle)>margin) {
-            robotHelper.rotateRightForTime((int) (multiplier * delay));
-            currentAngle = (float) determineAngleFromImage(proxy, it);
-            delay = getDelay(targetAngle-currentAngle);
-            multiplier = multiplier + 0.1F;
-            it++;
-        }
-        */
         robotHelper.closeConnection();
     }
 }

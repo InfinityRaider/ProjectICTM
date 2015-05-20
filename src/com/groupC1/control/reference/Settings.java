@@ -1,6 +1,5 @@
 package com.groupC1.control.reference;
 
-import com.groupC1.control.util.DebugHelper;
 import com.groupC1.control.util.IOHelper;
 
 import java.lang.reflect.Constructor;
@@ -25,6 +24,13 @@ public class Settings {
     public static String FILE_NAME = "scaling_and_orient.txt";
     public static Boolean EXECUTE_MATLAB = true;
     public static Integer DRIVE_TIME_BEFORE_CORRECTION = 2000;
+    public static Float MAX_DRIVING_DISTANCE = 0.500F;
+    public static Integer MAX_ITERATIONS = 15;
+    public static Integer ENDING_MARGIN = 10;
+    public static Float MAX_ANGLE_ERROR = 10.0F;
+    public static Boolean ACTIVE_ANGLE_CONTROL = true;
+    public static Boolean ROBOT_TESTING_MODE = false;
+    public static Boolean RECALCULATE_PATH_EVERY_ITERATION = false;
     //public static Character START_DATA_CHAR = Reference.START_DATA_CHAR;
     //public static Character STOP_DATA_CHAR = Refrence.STOP_DATA_CHAR;
 
@@ -53,12 +59,9 @@ public class Settings {
             if(index<0) {continue;}
             String name = setting.substring(0, index);
             String value = setting.substring(index + 1);
-            DebugHelper.debug("Trying to set " + name + " to "+value+'\n');
             try {
                 Field field = Settings.class.getField(name);
-                DebugHelper.debug("Field: " + field.getName() + '\n');
                 Class clazz = field.getType();
-                DebugHelper.debug("Class: " + clazz.getName()+'\n');
                 Constructor constructor = clazz.getConstructor(new Class[]{String.class});
                 field.set(null, constructor.newInstance(value));
             } catch(Exception e) {

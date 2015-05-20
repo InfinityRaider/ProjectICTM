@@ -1,6 +1,6 @@
 function MainScript(imagename, filename, buildMap, doPlots)
 
-close all
+%close all
 %---------
 %Constants
 %---------
@@ -94,7 +94,7 @@ end
 %--------------
 %Determine path
 %--------------
-path = Smooth_AStar_Path(img3,[resrobotY,resrobotX])                                  %Find path and smooth it (n x 2)
+path = Smooth_AStar_Path(img3,[resrobotY,resrobotX]);                                  %Find path and smooth it (n x 2)
 csvwrite(filename, path);%Writes path to a csv file
 
 fid = fopen( 'scaling_and_orient.txt', 'wt' );

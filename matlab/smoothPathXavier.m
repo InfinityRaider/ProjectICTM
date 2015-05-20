@@ -7,11 +7,14 @@ i = 2;
 prevPoint = 1;
 while(i<=length) 
    if(hasLineOfSight(path(prevPoint,:), startPath(i,:), image))
-      i = i+1;
+       %If there is no obstacle between these points, go to the next point
+       i = i+1;
    else
-      path(prevPoint+1,:) = startPath(i-1,:);
-      prevPoint = prevPoint + 1;
-      i = i+1;
+       %If there is an obstacle between these points, add the previous
+       %point to the smoothed path
+        path(prevPoint+1,:) = startPath(i-1,:);
+        prevPoint = prevPoint + 1;
+        i = i+1;
    end
 end
 %add final point

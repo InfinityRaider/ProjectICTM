@@ -1,5 +1,5 @@
 function position = FindCenters(filename, calibrate, doPlots)
-close all
+
 scene=imread(filename);
 imshow(scene);
 
@@ -17,13 +17,16 @@ if(calibrate)
     H2=scene(X2,Y2,1);
     S2=scene(X2,Y2,2);
     V2=scene(X2,Y2,3);
-else    
-    H1=0.9322;
-    S1=0.5029;
-    V1=0.6706;
-    H2=0.1255;
-    S2=0.4326;
-    V2=0.6980;
+    vector = [H1;S1;V1;H2;S2;V2];
+    csvwrite('calibration.csv',vector);
+else
+    vector = csvread('calibration.csv');
+    H1=vector(1);
+    S1=vector(2);
+    V1=vector(3);
+    H2=vector(4);
+    S2=vector(5);
+    V2=vector(6);
 
 end
 [SY,SX,NieNodig]=size(scene);

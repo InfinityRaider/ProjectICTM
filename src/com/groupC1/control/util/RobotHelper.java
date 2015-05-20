@@ -27,7 +27,7 @@ public class RobotHelper {
     /** Makes the robot drive forward over the given distance */
     public void driveForward(float distance) {
         System.out.println("   driving "+distance+"m");
-        if(distance == 0) {
+        if(distance <= 0.02F) {
             return;
         }
         float delay = driveDelay(distance);
@@ -56,8 +56,13 @@ public class RobotHelper {
     /** Makes the robot rotate over the given angle */
     public void rotate(float angle) {
         angle = - angle;
+        if (angle > 180) {
+            angle = angle - 360;
+        } else if (angle < -180) {
+            angle = angle + 360;
+        }
         System.out.println("   Rotating "+angle+"°");
-        if (angle == 0) {
+        if (Math.abs(angle) <= Settings.MAX_ANGLE_ERROR) {
             return;
         }
         float delay = rotationDelay(angle);
